@@ -2,25 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+import warnings
 
-# PARTE 1 
-
-# MEDIA: OK
-# MEDIANAS: OK
-# VARIANCIA E DESVIO PADRAO: ok
-# MAIOR E MENOR VENDA: 
-
-# PARTE 2
-
-# quartis: ok
-# intervalo interquartil: ok
-
-# PARTE 3 
-
-# PREVISAO 2028: 
-# ERRO MEDIO E ERRO MEDIO PERCENTUAL:
-# PREVISAO 2028 ATE 2032:
-
+warnings.filterwarnings("ignore", category=Warning)
 
 df = pd.read_csv('C:/Users/lucas/OneDrive/Documentos/Estudos/Faculdade/Semestre_6/Data_Science/Trabalho2Data_Science/Vendas.csv', index_col='Ano', parse_dates=True, sep=';')
 
@@ -89,7 +73,20 @@ previsoes_2028 = np.array(previsao)
 mae = np.mean(np.abs(valores_reais_2028 - previsoes_2028))
 mape = np.mean(np.abs((valores_reais_2028 - previsoes_2028) / valores_reais_2028)) * 100
 
-print(f"Erro Médio Absoluto (MAE): {mae}")
-print(f"Erro Percentual Médio Absoluto (MAPE): {mape}%")
+print(f"Erro Médio Absoluto (MAE): {round(mae, 2)}")
+print(f"Erro Percentual Médio Absoluto (MAPE): {round(mape, 2)}%")
+
+model = sm.tsa.ExponentialSmoothing(ts, trend='add', seasonal='add', seasonal_periods=12)
+model_fit = model.fit()
+
+for ano in range(2028, 2033):
+
+    previsao_hw = model_fit.forecast(steps=12)
+    valores_hw = previsao_hw.sum()
+    print(f"Previsão Holt-Winters para o ano {ano}: {round(valores_hw, 2)}")
+
+    model_fit = sm.tsa.ExponentialSmoothing(ts[ts.index.year <= ano], trend='add', seasonal='add', seasonal_periods=12).fit()
+
+warnings.filterwarnings("default", category=Warning)
 
 
